@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import calendar
 from base64 import b64encode
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -79,7 +80,11 @@ class DineroApiClient:
         start_date = now.date().replace(month=1, day=1).isoformat()
         month_start = now.date().replace(day=1).isoformat()
         end_date = now.date().isoformat()
+        ltm_start = _ltm_start(now.date()).isoformat()
         entries = await self._async_entries(start_date, end_date, include_primo=False)
+        ltm_entries = await self._async_entries(
+            ltm_start, end_date, include_primo=False
+        )
         balance_entries = await self._async_entries(start_date, end_date, include_primo=True)
 
         ytd_revenue, ytd_expenses, ytd_revenue_entries = _profit_and_loss(entries)
@@ -88,6 +93,7 @@ class DineroApiClient:
             if str(_get_value(entry, "date", ""))[:10] >= month_start
         ]
         month_revenue, month_expenses, month_revenue_entries = _profit_and_loss(month_entries)
+        ltm_revenue, ltm_expenses, ltm_revenue_entries = _profit_and_loss(ltm_entries)
         inventory_value = sum(
             (
                 Decimal(str(_get_value(entry, "amount", 0)))
@@ -104,13 +110,18 @@ class DineroApiClient:
             "current_month_revenue": float(month_revenue),
             "current_month_expenses": float(month_expenses),
             "current_month_result": float(month_revenue - month_expenses),
+            "ltm_revenue": float(ltm_revenue),
+            "ltm_expenses": float(ltm_expenses),
+            "ltm_result": float(ltm_revenue - ltm_expenses),
             "inventory_value": float(inventory_value),
             "entry_count": len(entries),
             "revenue_entry_count": ytd_revenue_entries,
             "month_revenue_entry_count": month_revenue_entries,
+            "ltm_revenue_entry_count": ltm_revenue_entries,
             "currency": "DKK",
             "start_date": start_date,
             "month_start": month_start,
+            "ltm_start": ltm_start,
             "end_date": end_date,
             "year": now.year,
         }
@@ -179,4 +190,12 @@ def _profit_and_loss(entries: list[dict[str, Any]]) -> tuple[Decimal, Decimal, i
         elif 2000 <= account_number <= 9999:
             expenses += amount
     return revenue, expenses, revenue_entry_count
+
+
+def _ltm_start(today: date) -> date:
+    """Return the first date in the trailing twelve-month period."""
+    prior_year_day = min(
+        today.day, calendar.monthrange(today.year - 1, today.month)[1]
+    )
+    return today.replace(year=today.year - 1, day=prior_year_day) + timedelta(days=1)
 
