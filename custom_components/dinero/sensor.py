@@ -46,6 +46,8 @@ class DineroYearToDateRevenueSensor(CoordinatorEntity[DineroDataUpdateCoordinato
         data = self.coordinator.data
         return {
             "invoice_count": data["invoice_count"],
+            "fetched_invoice_count": data["raw_invoice_count"],
+            "booked_invoice_count": data["booked_invoice_count"],
             "start_date": data["start_date"],
             "end_date": data["end_date"],
             "year": data["year"],
