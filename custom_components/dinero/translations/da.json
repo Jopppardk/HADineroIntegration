@@ -27,7 +27,10 @@
       "current_month_revenue": {"name": "Omsætning indeværende måned"},
       "current_month_expenses": {"name": "Udgifter indeværende måned"},
       "current_month_result": {"name": "Resultat indeværende måned"},
-      "inventory_value": {"name": "Registreret lagerværdi"}
+      "inventory_value": {"name": "Registreret lagerværdi"},
+      "ltm_revenue": {"name": "Omsætning LTM"},
+      "ltm_expenses": {"name": "Udgifter LTM"},
+      "ltm_result": {"name": "Resultat LTM"}
     }
   }
 }
