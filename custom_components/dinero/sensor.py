@@ -68,6 +68,22 @@ SENSORS = (
         key="ltm_result", translation_key="ltm_result",
         icon="mdi:chart-timeline-variant", period="last_twelve_months"
     ),
+    DineroSensorDescription(
+        key="bank_balance", translation_key="bank_balance",
+        icon="mdi:bank", period="current_balance"
+    ),
+    DineroSensorDescription(
+        key="shopify_payments_balance", translation_key="shopify_payments_balance",
+        icon="mdi:shopify", period="current_balance"
+    ),
+    DineroSensorDescription(
+        key="flatpay_balance", translation_key="flatpay_balance",
+        icon="mdi:credit-card-outline", period="current_balance"
+    ),
+    DineroSensorDescription(
+        key="distribution_account_balance", translation_key="distribution_account_balance",
+        icon="mdi:call-split", period="current_balance"
+    ),
 )
 
 
@@ -121,6 +137,13 @@ class DineroMonetarySensor(CoordinatorEntity[DineroDataUpdateCoordinator], Senso
             start_date = data["ltm_start"]
         else:
             start_date = data["start_date"]
+        account_sources = {
+            "inventory_value": self.coordinator.client.inventory_account,
+            "bank_balance": 55000,
+            "shopify_payments_balance": 55100,
+            "flatpay_balance": 55105,
+            "distribution_account_balance": 55110,
+        }
         return {
             "start_date": start_date,
             "end_date": data["end_date"],
@@ -128,8 +151,8 @@ class DineroMonetarySensor(CoordinatorEntity[DineroDataUpdateCoordinator], Senso
             "period": self.entity_description.period,
             "amount_basis": "excluding_vat",
             "source": (
-                f"general_ledger_account_{self.coordinator.client.inventory_account}"
-                if self.entity_description.key == "inventory_value"
+                f"general_ledger_account_{account_sources[self.entity_description.key]}"
+                if self.entity_description.key in account_sources
                 else "general_ledger_profit_and_loss"
             ),
         }
