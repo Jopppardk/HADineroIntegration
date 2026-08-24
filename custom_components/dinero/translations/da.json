@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Forbind til Dinero",
+        "description": "Indtast oplysningerne fra din personlige Dinero-integration.",
+        "data": {
+          "name": "Navn",
+          "organization_id": "Organisations-ID",
+          "client_id": "Klient-ID",
+          "client_secret": "Klienthemmelighed",
+          "api_key": "API-nøgle"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kunne ikke forbinde til Dinero",
+      "invalid_auth": "Ugyldige loginoplysninger"
+    },
+    "abort": {"already_configured": "Denne Dinero-organisation er allerede opsat"}
+  },
+  "entity": {"sensor": {"year_to_date_revenue": {"name": "Omsætning år til dato"}}}
+}
+
