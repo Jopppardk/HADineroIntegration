@@ -121,7 +121,7 @@ class DineroMonetarySensor(CoordinatorEntity[DineroDataUpdateCoordinator], Senso
             "period": self.entity_description.period,
             "amount_basis": "excluding_vat",
             "source": (
-                "general_ledger_account_52000"
+                f"general_ledger_account_{self.coordinator.client.inventory_account}"
                 if self.entity_description.key == "inventory_value"
                 else "general_ledger_profit_and_loss"
             ),
