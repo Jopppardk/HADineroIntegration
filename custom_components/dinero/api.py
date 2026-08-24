@@ -28,12 +28,14 @@ class DineroApiClient:
     """Small client containing only the calls needed by this integration."""
 
     def __init__(self, hass: HomeAssistant, *, client_id: str, client_secret: str,
-                 api_key: str, organization_id: str) -> None:
+                 api_key: str, organization_id: str,
+                 inventory_account: int = 52000) -> None:
         self._session = async_get_clientsession(hass)
         self._client_id = client_id
         self._client_secret = client_secret
         self._api_key = api_key
         self.organization_id = organization_id
+        self.inventory_account = inventory_account
         self._access_token: str | None = None
         self._token_expires_at: datetime | None = None
 
@@ -104,7 +106,7 @@ class DineroApiClient:
             (
                 Decimal(str(_get_value(entry, "amount", 0)))
                 for entry in balance_entries
-                if int(_get_value(entry, "accountNumber", 0)) == 52000
+                if int(_get_value(entry, "accountNumber", 0)) == self.inventory_account
             ),
             Decimal("0"),
         )
@@ -155,6 +157,56 @@ class DineroApiClient:
             raise DineroApiError(f"Network error while contacting Dinero: {err}") from err
 
         return _extract_entries(payload)
+
+    async def async_book_inventory_adjustment(
+        self,
+        *,
+        amount: Decimal,
+        inventory_account: int,
+        adjustment_account: int,
+        external_reference: str,
+    ) -> dict[str, Any]:
+        """Create and book a VAT-free inventory adjustment voucher."""
+        token = await self._async_access_token()
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "VoucherDate": dt_util.now().date().isoformat(),
+            "ExternalReference": external_reference[:128],
+            "Lines": [
+                {
+                    "Description": "Lagerregulering fra Home Assistant",
+                    "AccountNumber": inventory_account,
+                    "BalancingAccountNumber": adjustment_account,
+                    "Amount": float(amount),
+                    "AccountVatCode": "none",
+                    "BalancingAccountVatCode": "none",
+                }
+            ],
+        }
+        try:
+            response = await self._session.post(
+                f"{API_BASE_URL}/{self.organization_id}/vouchers/manuel",
+                headers=headers,
+                json=payload,
+            )
+            await _raise_for_status(response)
+            voucher = await response.json()
+            guid = _get_value(voucher, "Guid")
+            timestamp = _get_value(voucher, "Timestamp")
+            if not guid or not timestamp:
+                raise DineroApiError("Dinero did not return voucher Guid and Timestamp")
+
+            response = await self._session.post(
+                f"{API_BASE_URL}/{self.organization_id}/vouchers/manuel/{guid}/book",
+                headers=headers,
+                json={"Timestamp": timestamp},
+            )
+            await _raise_for_status(response)
+            return await response.json()
+        except DineroApiError:
+            raise
+        except ClientError as err:
+            raise DineroApiError(f"Network error while contacting Dinero: {err}") from err
 
 
 async def _raise_for_status(response: Any, *, authentication_request: bool = False) -> None:
