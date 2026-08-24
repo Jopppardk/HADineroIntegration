@@ -11,6 +11,11 @@ Assistant integration and exposes one monetary sensor:
 The integration refreshes every 15 minutes and automatically renews Dinero's
 one-hour access token.
 
+Additional sensors expose year-to-date and current-month expenses and result,
+plus the currently posted inventory value from account 52000. Expense values
+are the net balance of Dinero profit-and-loss accounts 2000–9999; result is
+revenue minus those net expenses.
+
 ## Requirements
 
 - Home Assistant 2024.12 or newer
