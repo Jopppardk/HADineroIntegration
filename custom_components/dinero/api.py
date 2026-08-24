@@ -74,20 +74,60 @@ class DineroApiClient:
         return self._access_token
 
     async def async_year_to_date_revenue(self) -> dict[str, Any]:
-        """Return posted revenue entries for the current calendar year."""
+        """Return current year/month P&L values and inventory balance."""
         now = dt_util.now()
         start_date = now.date().replace(month=1, day=1).isoformat()
+        month_start = now.date().replace(day=1).isoformat()
         end_date = now.date().isoformat()
-        total = Decimal("0")
+        entries = await self._async_entries(start_date, end_date, include_primo=False)
+        balance_entries = await self._async_entries(start_date, end_date, include_primo=True)
+
+        ytd_revenue, ytd_expenses, ytd_revenue_entries = _profit_and_loss(entries)
+        month_entries = [
+            entry for entry in entries
+            if str(_get_value(entry, "date", ""))[:10] >= month_start
+        ]
+        month_revenue, month_expenses, month_revenue_entries = _profit_and_loss(month_entries)
+        inventory_value = sum(
+            (
+                Decimal(str(_get_value(entry, "amount", 0)))
+                for entry in balance_entries
+                if int(_get_value(entry, "accountNumber", 0)) == 52000
+            ),
+            Decimal("0"),
+        )
+
+        return {
+            "year_to_date_revenue": float(ytd_revenue),
+            "year_to_date_expenses": float(ytd_expenses),
+            "year_to_date_result": float(ytd_revenue - ytd_expenses),
+            "current_month_revenue": float(month_revenue),
+            "current_month_expenses": float(month_expenses),
+            "current_month_result": float(month_revenue - month_expenses),
+            "inventory_value": float(inventory_value),
+            "entry_count": len(entries),
+            "revenue_entry_count": ytd_revenue_entries,
+            "month_revenue_entry_count": month_revenue_entries,
+            "currency": "DKK",
+            "start_date": start_date,
+            "month_start": month_start,
+            "end_date": end_date,
+            "year": now.year,
+        }
+
+    async def _async_entries(
+        self, from_date: str, to_date: str, *, include_primo: bool
+    ) -> list[dict[str, Any]]:
+        """Fetch general-ledger entries for a period."""
         token = await self._async_access_token()
         try:
             response = await self._session.get(
                 f"{API_BASE_URL}/{self.organization_id}/entries",
                 headers={"Authorization": f"Bearer {token}"},
                 params={
-                    "fromDate": start_date,
-                    "toDate": end_date,
-                    "includePrimo": "false",
+                    "fromDate": from_date,
+                    "toDate": to_date,
+                    "includePrimo": str(include_primo).lower(),
                 },
             )
             response.raise_for_status()
@@ -97,27 +137,7 @@ class DineroApiClient:
                 raise DineroAuthenticationError from err
             raise DineroApiError from err
 
-        entries = _extract_entries(payload)
-        revenue_entry_count = 0
-        revenue_accounts: set[int] = set()
-        for entry in entries:
-            account_number = int(_get_value(entry, "accountNumber", 0))
-            if 1000 <= account_number <= 1999:
-                # Revenue is credited (negative) in Dinero's entry model.
-                total -= Decimal(str(_get_value(entry, "amount", 0)))
-                revenue_entry_count += 1
-                revenue_accounts.add(account_number)
-
-        return {
-            "year_to_date_revenue": float(total),
-            "entry_count": len(entries),
-            "revenue_entry_count": revenue_entry_count,
-            "revenue_account_count": len(revenue_accounts),
-            "currency": "DKK",
-            "start_date": start_date,
-            "end_date": end_date,
-            "year": now.year,
-        }
+        return _extract_entries(payload)
 
 
 def _get_value(item: dict[str, Any], key: str, default: Any = None) -> Any:
@@ -143,4 +163,20 @@ def _extract_entries(payload: Any) -> list[dict[str, Any]]:
     ):
         raise DineroApiError("Dinero returned an unexpected entries response")
     return collection
+
+
+def _profit_and_loss(entries: list[dict[str, Any]]) -> tuple[Decimal, Decimal, int]:
+    """Calculate revenue and net expenses from Dinero P&L accounts."""
+    revenue = Decimal("0")
+    expenses = Decimal("0")
+    revenue_entry_count = 0
+    for entry in entries:
+        account_number = int(_get_value(entry, "accountNumber", 0))
+        amount = Decimal(str(_get_value(entry, "amount", 0)))
+        if 1000 <= account_number <= 1999:
+            revenue -= amount
+            revenue_entry_count += 1
+        elif 2000 <= account_number <= 9999:
+            expenses += amount
+    return revenue, expenses, revenue_entry_count
 
