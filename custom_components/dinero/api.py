@@ -189,7 +189,7 @@ class DineroApiClient:
             "ExternalReference": external_reference[:128],
             "Lines": [
                 {
-                    "Description": "Lagerregulering fra Home Assistant",
+                    "Description": "Automatisk lagerregulering",
                     "AccountNumber": inventory_account,
                     "BalancingAccountNumber": adjustment_account,
                     "Amount": float(amount),
