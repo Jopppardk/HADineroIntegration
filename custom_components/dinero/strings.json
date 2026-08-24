@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Dinero",
+        "description": "Enter the credentials from your Dinero personal integration.",
+        "data": {
+          "name": "Name",
+          "organization_id": "Organization ID",
+          "client_id": "Client ID",
+          "client_secret": "Client secret",
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Dinero",
+      "invalid_auth": "Invalid credentials"
+    },
+    "abort": {"already_configured": "This Dinero organization is already configured"}
+  },
+  "entity": {"sensor": {"year_to_date_revenue": {"name": "Year-to-date revenue"}}}
+}
+
