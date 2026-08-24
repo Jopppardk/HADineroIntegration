@@ -182,16 +182,13 @@ class DineroApiClient:
         external_reference: str,
     ) -> dict[str, Any]:
         """Create and book a VAT-free inventory adjustment voucher."""
-        token = await self._async_access_token()
-        headers = {"Authorization": f"Bearer {token}"}
         voucher_date = dt_util.now().date()
         formatted_amount = f"{amount:,.2f}".replace(",", "_").replace(
             ".", ","
         ).replace("_", ".")
-        payload = {
-            "VoucherDate": voucher_date.isoformat(),
-            "ExternalReference": external_reference[:128],
-            "Lines": [
+        return await self._async_create_and_book_manual_voucher(
+            external_reference=external_reference,
+            lines=[
                 {
                     "Description": (
                         "Automatisk lagerregulering "
@@ -204,6 +201,52 @@ class DineroApiClient:
                     "BalancingAccountVatCode": "none",
                 }
             ],
+        )
+
+    async def async_book_card_account_settlement(
+        self,
+        *,
+        shopify_payments_amount: Decimal,
+        flatpay_amount: Decimal,
+        external_reference: str,
+    ) -> dict[str, Any]:
+        """Settle negative card-account balances against the distribution account."""
+        lines = []
+        for account_number, amount in (
+            (55100, shopify_payments_amount),
+            (55105, flatpay_amount),
+        ):
+            if amount > 0:
+                lines.append(
+                    {
+                        "Description": "Automatisk udligning af kreditkortkonti",
+                        "AccountNumber": account_number,
+                        "BalancingAccountNumber": 55110,
+                        "Amount": float(amount),
+                        "AccountVatCode": "none",
+                        "BalancingAccountVatCode": "none",
+                    }
+                )
+        if not lines:
+            raise DineroApiError("There are no negative card-account balances to settle")
+        return await self._async_create_and_book_manual_voucher(
+            external_reference=external_reference,
+            lines=lines,
+        )
+
+    async def _async_create_and_book_manual_voucher(
+        self,
+        *,
+        external_reference: str,
+        lines: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Create a manual voucher draft and book it immediately."""
+        token = await self._async_access_token()
+        headers = {"Authorization": f"Bearer {token}"}
+        payload = {
+            "VoucherDate": dt_util.now().date().isoformat(),
+            "ExternalReference": external_reference[:128],
+            "Lines": lines,
         }
         try:
             response = await self._session.post(
