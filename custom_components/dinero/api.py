@@ -8,7 +8,7 @@ from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
-from aiohttp import ClientResponseError
+from aiohttp import ClientError
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util import dt as dt_util
@@ -60,12 +60,12 @@ class DineroApiClient:
                     "password": self._api_key,
                 },
             )
-            response.raise_for_status()
+            await _raise_for_status(response, authentication_request=True)
             payload = await response.json()
-        except ClientResponseError as err:
-            if err.status in (400, 401, 403):
-                raise DineroAuthenticationError from err
-            raise DineroApiError from err
+        except DineroApiError:
+            raise
+        except ClientError as err:
+            raise DineroApiError(f"Network error while contacting Dinero: {err}") from err
 
         self._access_token = payload["access_token"]
         # Keep a safety margin so an update never starts with an expiring token.
@@ -82,9 +82,15 @@ class DineroApiClient:
         end_date = now.date().isoformat()
         ltm_start = _ltm_start(now.date()).isoformat()
         entries = await self._async_entries(start_date, end_date, include_primo=False)
-        ltm_entries = await self._async_entries(
-            ltm_start, end_date, include_primo=False
+        # Dinero's entries endpoint only accepts dates from one accounting year.
+        # Reuse this year's entries and fetch the prior-year part separately.
+        prior_year_end = now.date().replace(
+            year=now.year - 1, month=12, day=31
+        ).isoformat()
+        prior_year_ltm_entries = await self._async_entries(
+            ltm_start, prior_year_end, include_primo=False
         )
+        ltm_entries = prior_year_ltm_entries + entries
         balance_entries = await self._async_entries(start_date, end_date, include_primo=True)
 
         ytd_revenue, ytd_expenses, ytd_revenue_entries = _profit_and_loss(entries)
@@ -141,14 +147,29 @@ class DineroApiClient:
                     "includePrimo": str(include_primo).lower(),
                 },
             )
-            response.raise_for_status()
+            await _raise_for_status(response)
             payload = await response.json()
-        except ClientResponseError as err:
-            if err.status in (401, 403):
-                raise DineroAuthenticationError from err
-            raise DineroApiError from err
+        except DineroApiError:
+            raise
+        except ClientError as err:
+            raise DineroApiError(f"Network error while contacting Dinero: {err}") from err
 
         return _extract_entries(payload)
+
+
+async def _raise_for_status(response: Any, *, authentication_request: bool = False) -> None:
+    """Raise a useful error containing Dinero's HTTP status and response."""
+    if response.status < 400:
+        return
+
+    response_text = (await response.text()).strip().replace("\n", " ")
+    detail = response_text[:500] or response.reason or "No response details"
+    message = f"Dinero HTTP {response.status}: {detail}"
+    if response.status in (401, 403) or (
+        authentication_request and response.status == 400
+    ):
+        raise DineroAuthenticationError(message)
+    raise DineroApiError(message)
 
 
 def _get_value(item: dict[str, Any], key: str, default: Any = None) -> Any:
