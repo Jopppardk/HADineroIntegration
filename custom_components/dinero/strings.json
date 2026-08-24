@@ -46,7 +46,8 @@
       "inventory_value": {"name": "Inventory value"},
       "ltm_revenue": {"name": "LTM revenue"},
       "ltm_expenses": {"name": "LTM expenses"},
-      "ltm_result": {"name": "LTM result"}
+      "ltm_result": {"name": "LTM result"},
+      "inventory_adjustment": {"name": "Inventory adjustment"}
     },
     "button": {
       "book_inventory_adjustment": {"name": "Book inventory adjustment"}
