@@ -54,7 +54,8 @@
       "distribution_account_balance": {"name": "Distribution account balance"}
     },
     "button": {
-      "book_inventory_adjustment": {"name": "Book inventory adjustment"}
+      "book_inventory_adjustment": {"name": "Book inventory adjustment"},
+      "settle_card_accounts": {"name": "Settle card accounts"}
     }
   }
 }
