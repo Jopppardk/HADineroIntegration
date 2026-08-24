@@ -82,6 +82,8 @@ class DineroApiClient:
         page_size = 1000
         total = Decimal("0")
         invoice_count = 0
+        raw_invoice_count = 0
+        booked_invoice_count = 0
 
         while True:
             token = await self._async_access_token()
@@ -94,14 +96,10 @@ class DineroApiClient:
                         "endDate": end_date,
                         "page": page,
                         "pageSize": page_size,
-                        "fields": [
-                            "Guid",
-                            "Date",
-                            "Status",
-                            "Currency",
-                            "TotalExclVat",
-                            "TotalExclVatInDkk",
-                        ],
+                        "fields": (
+                            "Guid,Date,Status,Currency,TotalExclVat,"
+                            "TotalExclVatInDkk"
+                        ),
                     },
                 )
                 response.raise_for_status()
@@ -112,9 +110,11 @@ class DineroApiClient:
                 raise DineroApiError from err
 
             invoices = _extract_collection(payload)
+            raw_invoice_count += len(invoices)
             for invoice in invoices:
                 if str(_get_value(invoice, "status", "")).casefold() == "draft":
                     continue
+                booked_invoice_count += 1
                 amount = _get_value(invoice, "totalExclVatInDkk")
                 if amount is None and _get_value(invoice, "currency", "DKK") == "DKK":
                     amount = _get_value(invoice, "totalExclVat", 0)
@@ -126,9 +126,16 @@ class DineroApiClient:
                 break
             page += 1
 
+        if booked_invoice_count and invoice_count == 0:
+            raise DineroApiError(
+                "Dinero returned invoices without the requested amount fields"
+            )
+
         return {
             "year_to_date_revenue": float(total),
             "invoice_count": invoice_count,
+            "raw_invoice_count": raw_invoice_count,
+            "booked_invoice_count": booked_invoice_count,
             "currency": "DKK",
             "start_date": start_date,
             "end_date": end_date,
