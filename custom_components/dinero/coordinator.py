@@ -1,10 +1,14 @@
 """Data coordinator for Dinero."""
 
+import logging
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import DineroApiClient, DineroApiError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class DineroDataUpdateCoordinator(DataUpdateCoordinator[dict]):
@@ -13,7 +17,7 @@ class DineroDataUpdateCoordinator(DataUpdateCoordinator[dict]):
     def __init__(self, hass: HomeAssistant, client: DineroApiClient) -> None:
         super().__init__(
             hass,
-            logger=__import__("logging").getLogger(__name__),
+            logger=_LOGGER,
             name=DOMAIN,
             update_interval=DEFAULT_SCAN_INTERVAL,
         )
