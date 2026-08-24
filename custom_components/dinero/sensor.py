@@ -54,6 +54,18 @@ SENSORS = (
         key="inventory_value", translation_key="inventory_value",
         icon="mdi:warehouse", period="current_balance"
     ),
+    DineroSensorDescription(
+        key="ltm_revenue", translation_key="ltm_revenue",
+        icon="mdi:calendar-range", period="last_twelve_months"
+    ),
+    DineroSensorDescription(
+        key="ltm_expenses", translation_key="ltm_expenses",
+        icon="mdi:cash-minus", period="last_twelve_months"
+    ),
+    DineroSensorDescription(
+        key="ltm_result", translation_key="ltm_result",
+        icon="mdi:chart-timeline-variant", period="last_twelve_months"
+    ),
 )
 
 
@@ -96,11 +108,12 @@ class DineroMonetarySensor(CoordinatorEntity[DineroDataUpdateCoordinator], Senso
     @property
     def extra_state_attributes(self) -> dict:
         data = self.coordinator.data
-        start_date = (
-            data["month_start"]
-            if self.entity_description.period == "current_month"
-            else data["start_date"]
-        )
+        if self.entity_description.period == "current_month":
+            start_date = data["month_start"]
+        elif self.entity_description.period == "last_twelve_months":
+            start_date = data["ltm_start"]
+        else:
+            start_date = data["start_date"]
         return {
             "start_date": start_date,
             "end_date": data["end_date"],
