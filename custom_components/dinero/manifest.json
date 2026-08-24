@@ -1,0 +1,13 @@
+{
+  "domain": "dinero",
+  "name": "Dinero",
+  "codeowners": ["@Jopppardk"],
+  "config_flow": true,
+  "documentation": "https://github.com/Jopppardk/HADineroIntegration",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Jopppardk/HADineroIntegration/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
+
