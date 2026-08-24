@@ -16,6 +16,9 @@ plus the currently posted inventory value from account 52000. Expense values
 are the net balance of Dinero profit-and-loss accounts 2000–9999; result is
 revenue minus those net expenses.
 
+LTM revenue, expenses and result cover the rolling twelve-month period ending
+today, with leap years handled as calendar periods.
+
 ## Requirements
 
 - Home Assistant 2024.12 or newer
