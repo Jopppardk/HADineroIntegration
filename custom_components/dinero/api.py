@@ -184,12 +184,19 @@ class DineroApiClient:
         """Create and book a VAT-free inventory adjustment voucher."""
         token = await self._async_access_token()
         headers = {"Authorization": f"Bearer {token}"}
+        voucher_date = dt_util.now().date()
+        formatted_amount = f"{amount:,.2f}".replace(",", "_").replace(
+            ".", ","
+        ).replace("_", ".")
         payload = {
-            "VoucherDate": dt_util.now().date().isoformat(),
+            "VoucherDate": voucher_date.isoformat(),
             "ExternalReference": external_reference[:128],
             "Lines": [
                 {
-                    "Description": "Automatisk lagerregulering",
+                    "Description": (
+                        "Automatisk lagerregulering "
+                        f"{voucher_date.strftime('%d-%m-%Y')}: {formatted_amount} DKK"
+                    ),
                     "AccountNumber": inventory_account,
                     "BalancingAccountNumber": adjustment_account,
                     "Amount": float(amount),
