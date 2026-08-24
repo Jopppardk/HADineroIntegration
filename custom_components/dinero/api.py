@@ -110,6 +110,17 @@ class DineroApiClient:
             ),
             Decimal("0"),
         )
+        account_balances = {
+            account_number: sum(
+                (
+                    Decimal(str(_get_value(entry, "amount", 0)))
+                    for entry in balance_entries
+                    if int(_get_value(entry, "accountNumber", 0)) == account_number
+                ),
+                Decimal("0"),
+            )
+            for account_number in (55000, 55100, 55105, 55110)
+        }
 
         return {
             "year_to_date_revenue": float(ytd_revenue),
@@ -122,6 +133,10 @@ class DineroApiClient:
             "ltm_expenses": float(ltm_expenses),
             "ltm_result": float(ltm_revenue - ltm_expenses),
             "inventory_value": float(inventory_value),
+            "bank_balance": float(account_balances[55000]),
+            "shopify_payments_balance": float(account_balances[55100]),
+            "flatpay_balance": float(account_balances[55105]),
+            "distribution_account_balance": float(account_balances[55110]),
             "entry_count": len(entries),
             "revenue_entry_count": ytd_revenue_entries,
             "month_revenue_entry_count": month_revenue_entries,
