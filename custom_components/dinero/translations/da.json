@@ -47,7 +47,11 @@
       "ltm_revenue": {"name": "Omsætning LTM"},
       "ltm_expenses": {"name": "Udgifter LTM"},
       "ltm_result": {"name": "Resultat LTM"},
-      "inventory_adjustment": {"name": "Foreslået lagerregulering"}
+      "inventory_adjustment": {"name": "Foreslået lagerregulering"},
+      "bank_balance": {"name": "Bank"},
+      "shopify_payments_balance": {"name": "Shopify Payments"},
+      "flatpay_balance": {"name": "Flatpay"},
+      "distribution_account_balance": {"name": "Fordelingskonto"}
     },
     "button": {
       "book_inventory_adjustment": {"name": "Bogfør lagerregulering"}
