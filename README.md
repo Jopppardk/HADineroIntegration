@@ -4,8 +4,9 @@ Unofficial HACS integration that connects Home Assistant to Dinero. The first
 release follows the structure and dashboard-oriented purpose of the Shopify Home
 Assistant integration and exposes one monetary sensor:
 
-- **Omsætning år til dato** — sum of booked invoices dated from 1 January through
-  today, excluding VAT and converted by Dinero to DKK. Draft invoices are ignored.
+- **Omsætning år til dato** — net revenue posted from 1 January through today on
+  Dinero's revenue accounts 1000–1999. This includes invoices, manual vouchers,
+  webshop/POS imports, credit notes and reversals, excluding VAT.
 
 The integration refreshes every 15 minutes and automatically renews Dinero's
 one-hour access token.
