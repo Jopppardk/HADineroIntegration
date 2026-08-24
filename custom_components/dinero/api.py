@@ -111,13 +111,13 @@ class DineroApiClient:
                     raise DineroAuthenticationError from err
                 raise DineroApiError from err
 
-            invoices = payload.get("collection", payload) if isinstance(payload, dict) else payload
+            invoices = _extract_collection(payload)
             for invoice in invoices:
-                if invoice.get("status", "").casefold() == "draft":
+                if str(_get_value(invoice, "status", "")).casefold() == "draft":
                     continue
-                amount = invoice.get("totalExclVatInDkk")
-                if amount is None and invoice.get("currency", "DKK") == "DKK":
-                    amount = invoice.get("totalExclVat", 0)
+                amount = _get_value(invoice, "totalExclVatInDkk")
+                if amount is None and _get_value(invoice, "currency", "DKK") == "DKK":
+                    amount = _get_value(invoice, "totalExclVat", 0)
                 if amount is not None:
                     total += Decimal(str(amount))
                     invoice_count += 1
@@ -134,4 +134,33 @@ class DineroApiClient:
             "end_date": end_date,
             "year": now.year,
         }
+
+
+def _get_value(item: dict[str, Any], key: str, default: Any = None) -> Any:
+    """Read a Dinero field regardless of JSON property capitalization."""
+    wanted = key.casefold()
+    return next(
+        (value for name, value in item.items() if name.casefold() == wanted),
+        default,
+    )
+
+
+def _extract_collection(payload: Any) -> list[dict[str, Any]]:
+    """Extract and validate a list response from Dinero.
+
+    Dinero currently returns an envelope with ``Collection`` and ``Pagination``.
+    Older clients and mocked responses may use lowercase property names.
+    """
+    if isinstance(payload, list):
+        collection = payload
+    elif isinstance(payload, dict):
+        collection = _get_value(payload, "collection")
+    else:
+        collection = None
+
+    if not isinstance(collection, list) or not all(
+        isinstance(item, dict) for item in collection
+    ):
+        raise DineroApiError("Dinero returned an unexpected invoice response")
+    return collection
 
