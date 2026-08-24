@@ -19,6 +19,16 @@
     },
     "abort": {"already_configured": "This Dinero organization is already configured"}
   },
-  "entity": {"sensor": {"year_to_date_revenue": {"name": "Year-to-date revenue"}}}
+  "entity": {
+    "sensor": {
+      "year_to_date_revenue": {"name": "Year-to-date revenue"},
+      "year_to_date_expenses": {"name": "Year-to-date expenses"},
+      "year_to_date_result": {"name": "Year-to-date result"},
+      "current_month_revenue": {"name": "Current month revenue"},
+      "current_month_expenses": {"name": "Current month expenses"},
+      "current_month_result": {"name": "Current month result"},
+      "inventory_value": {"name": "Inventory value"}
+    }
+  }
 }
 
