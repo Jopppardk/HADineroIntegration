@@ -9,7 +9,10 @@
           "organization_id": "Organization ID",
           "client_id": "Client ID",
           "client_secret": "Client secret",
-          "api_key": "API key"
+          "api_key": "API key",
+          "inventory_account": "Inventory account",
+          "inventory_adjustment_account": "Inventory adjustment account",
+          "inventory_source_entity": "Home Assistant inventory value sensor (optional)"
         }
       }
     },
@@ -18,6 +21,19 @@
       "invalid_auth": "Invalid credentials"
     },
     "abort": {"already_configured": "This Dinero organization is already configured"}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Inventory adjustment",
+        "description": "Select the accounts and sensor used for inventory adjustments.",
+        "data": {
+          "inventory_account": "Inventory account",
+          "inventory_adjustment_account": "Inventory adjustment account",
+          "inventory_source_entity": "Home Assistant inventory value sensor"
+        }
+      }
+    }
   },
   "entity": {
     "sensor": {
@@ -31,6 +47,9 @@
       "ltm_revenue": {"name": "LTM revenue"},
       "ltm_expenses": {"name": "LTM expenses"},
       "ltm_result": {"name": "LTM result"}
+    },
+    "button": {
+      "book_inventory_adjustment": {"name": "Book inventory adjustment"}
     }
   }
 }
