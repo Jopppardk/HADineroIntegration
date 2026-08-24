@@ -54,7 +54,8 @@
       "distribution_account_balance": {"name": "Fordelingskonto"}
     },
     "button": {
-      "book_inventory_adjustment": {"name": "Bogfør lagerregulering"}
+      "book_inventory_adjustment": {"name": "Bogfør lagerregulering"},
+      "settle_card_accounts": {"name": "Udlign kreditkortkonti"}
     }
   }
 }
