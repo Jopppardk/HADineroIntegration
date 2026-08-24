@@ -19,6 +19,16 @@
     },
     "abort": {"already_configured": "Denne Dinero-organisation er allerede opsat"}
   },
-  "entity": {"sensor": {"year_to_date_revenue": {"name": "Omsætning år til dato"}}}
+  "entity": {
+    "sensor": {
+      "year_to_date_revenue": {"name": "Omsætning år til dato"},
+      "year_to_date_expenses": {"name": "Udgifter år til dato"},
+      "year_to_date_result": {"name": "Resultat år til dato"},
+      "current_month_revenue": {"name": "Omsætning indeværende måned"},
+      "current_month_expenses": {"name": "Udgifter indeværende måned"},
+      "current_month_result": {"name": "Resultat indeværende måned"},
+      "inventory_value": {"name": "Registreret lagerværdi"}
+    }
+  }
 }
 
