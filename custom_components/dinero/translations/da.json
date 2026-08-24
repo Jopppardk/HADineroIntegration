@@ -46,7 +46,8 @@
       "inventory_value": {"name": "Registreret lagerværdi"},
       "ltm_revenue": {"name": "Omsætning LTM"},
       "ltm_expenses": {"name": "Udgifter LTM"},
-      "ltm_result": {"name": "Resultat LTM"}
+      "ltm_result": {"name": "Resultat LTM"},
+      "inventory_adjustment": {"name": "Foreslået lagerregulering"}
     },
     "button": {
       "book_inventory_adjustment": {"name": "Bogfør lagerregulering"}
