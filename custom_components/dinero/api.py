@@ -94,10 +94,14 @@ class DineroApiClient:
                         "endDate": end_date,
                         "page": page,
                         "pageSize": page_size,
-                        "fields": (
-                            "Guid,Date,Status,Currency,TotalExclVat,"
-                            "TotalExclVatInDkk"
-                        ),
+                        "fields": [
+                            "Guid",
+                            "Date",
+                            "Status",
+                            "Currency",
+                            "TotalExclVat",
+                            "TotalExclVatInDkk",
+                        ],
                     },
                 )
                 response.raise_for_status()
