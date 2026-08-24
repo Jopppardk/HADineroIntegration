@@ -47,7 +47,11 @@
       "ltm_revenue": {"name": "LTM revenue"},
       "ltm_expenses": {"name": "LTM expenses"},
       "ltm_result": {"name": "LTM result"},
-      "inventory_adjustment": {"name": "Inventory adjustment"}
+      "inventory_adjustment": {"name": "Inventory adjustment"},
+      "bank_balance": {"name": "Bank balance"},
+      "shopify_payments_balance": {"name": "Shopify Payments balance"},
+      "flatpay_balance": {"name": "Flatpay balance"},
+      "distribution_account_balance": {"name": "Distribution account balance"}
     },
     "button": {
       "book_inventory_adjustment": {"name": "Book inventory adjustment"}
