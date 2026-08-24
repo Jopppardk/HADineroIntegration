@@ -9,7 +9,10 @@
           "organization_id": "Organisations-ID",
           "client_id": "Klient-ID",
           "client_secret": "Klienthemmelighed",
-          "api_key": "API-nøgle"
+          "api_key": "API-nøgle",
+          "inventory_account": "Konto til varebeholdning",
+          "inventory_adjustment_account": "Modkonto til lagerregulering",
+          "inventory_source_entity": "Sensor med lagerværdi i Home Assistant (valgfri)"
         }
       }
     },
@@ -18,6 +21,19 @@
       "invalid_auth": "Ugyldige loginoplysninger"
     },
     "abort": {"already_configured": "Denne Dinero-organisation er allerede opsat"}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Lagerregulering",
+        "description": "Vælg de konti og den sensor, der skal anvendes ved lagerregulering.",
+        "data": {
+          "inventory_account": "Konto til varebeholdning",
+          "inventory_adjustment_account": "Modkonto til lagerregulering",
+          "inventory_source_entity": "Sensor med lagerværdi i Home Assistant"
+        }
+      }
+    }
   },
   "entity": {
     "sensor": {
@@ -31,6 +47,9 @@
       "ltm_revenue": {"name": "Omsætning LTM"},
       "ltm_expenses": {"name": "Udgifter LTM"},
       "ltm_result": {"name": "Resultat LTM"}
+    },
+    "button": {
+      "book_inventory_adjustment": {"name": "Bogfør lagerregulering"}
     }
   }
 }
