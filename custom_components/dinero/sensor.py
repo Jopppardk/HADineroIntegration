@@ -45,13 +45,14 @@ class DineroYearToDateRevenueSensor(CoordinatorEntity[DineroDataUpdateCoordinato
     def extra_state_attributes(self) -> dict:
         data = self.coordinator.data
         return {
-            "invoice_count": data["invoice_count"],
-            "fetched_invoice_count": data["raw_invoice_count"],
-            "booked_invoice_count": data["booked_invoice_count"],
+            "entry_count": data["entry_count"],
+            "revenue_entry_count": data["revenue_entry_count"],
+            "revenue_account_count": data["revenue_account_count"],
             "start_date": data["start_date"],
             "end_date": data["end_date"],
             "year": data["year"],
             "period": "year_to_date",
             "amount_basis": "excluding_vat",
+            "source": "general_ledger_accounts_1000_1999",
         }
 
