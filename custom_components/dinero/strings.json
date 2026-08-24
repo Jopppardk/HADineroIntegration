@@ -27,7 +27,10 @@
       "current_month_revenue": {"name": "Current month revenue"},
       "current_month_expenses": {"name": "Current month expenses"},
       "current_month_result": {"name": "Current month result"},
-      "inventory_value": {"name": "Inventory value"}
+      "inventory_value": {"name": "Inventory value"},
+      "ltm_revenue": {"name": "LTM revenue"},
+      "ltm_expenses": {"name": "LTM expenses"},
+      "ltm_result": {"name": "LTM result"}
     }
   }
 }
