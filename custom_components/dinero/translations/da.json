@@ -14,13 +14,27 @@
           "inventory_adjustment_account": "Modkonto til lagerregulering",
           "inventory_source_entity": "Sensor med lagerværdi i Home Assistant (valgfri)"
         }
+      },
+      "reconfigure": {
+        "title": "Opdatér Dinero Client Secret",
+        "description": "Indtast det nye Client Secret. Det valideres, før det gemmes.",
+        "data": {"client_secret": "Nyt Client Secret"}
+      },
+      "reauth_confirm": {
+        "title": "Forbind Dinero igen",
+        "description": "Dinero afviste de gemte loginoplysninger. Indtast det nye Client Secret.",
+        "data": {"client_secret": "Nyt Client Secret"}
       }
     },
     "error": {
       "cannot_connect": "Kunne ikke forbinde til Dinero",
       "invalid_auth": "Ugyldige loginoplysninger"
     },
-    "abort": {"already_configured": "Denne Dinero-organisation er allerede opsat"}
+    "abort": {
+      "already_configured": "Denne Dinero-organisation er allerede opsat",
+      "reconfigure_successful": "Client Secret blev opdateret",
+      "reauth_successful": "Dinero blev forbundet igen"
+    }
   },
   "options": {
     "step": {
