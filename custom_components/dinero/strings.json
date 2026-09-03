@@ -14,13 +14,27 @@
           "inventory_adjustment_account": "Inventory adjustment account",
           "inventory_source_entity": "Home Assistant inventory value sensor (optional)"
         }
+      },
+      "reconfigure": {
+        "title": "Update Dinero Client Secret",
+        "description": "Enter the new Client Secret. It will be validated before it is saved.",
+        "data": {"client_secret": "New Client Secret"}
+      },
+      "reauth_confirm": {
+        "title": "Reconnect Dinero",
+        "description": "Dinero rejected the saved credentials. Enter the new Client Secret.",
+        "data": {"client_secret": "New Client Secret"}
       }
     },
     "error": {
       "cannot_connect": "Failed to connect to Dinero",
       "invalid_auth": "Invalid credentials"
     },
-    "abort": {"already_configured": "This Dinero organization is already configured"}
+    "abort": {
+      "already_configured": "This Dinero organization is already configured",
+      "reconfigure_successful": "The Client Secret was updated successfully",
+      "reauth_successful": "Dinero was reconnected successfully"
+    }
   },
   "options": {
     "step": {
