@@ -2,10 +2,11 @@
 
 import logging
 
+from homeassistant.config_entries import ConfigEntryAuthFailed
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import DineroApiClient, DineroApiError
+from .api import DineroApiClient, DineroApiError, DineroAuthenticationError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,6 +27,10 @@ class DineroDataUpdateCoordinator(DataUpdateCoordinator[dict]):
     async def _async_update_data(self) -> dict:
         try:
             return await self.client.async_year_to_date_revenue()
+        except DineroAuthenticationError as err:
+            raise ConfigEntryAuthFailed(
+                f"Dinero rejected the configured credentials: {err}"
+            ) from err
         except DineroApiError as err:
             raise UpdateFailed(f"Error communicating with Dinero: {err}") from err
 
