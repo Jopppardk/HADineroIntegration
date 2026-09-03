@@ -81,6 +81,57 @@ class DineroConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
+    async def async_step_reconfigure(self, user_input=None):
+        """Allow the Client Secret to be replaced without removing the entry."""
+        return await self._async_update_client_secret("reconfigure", user_input)
+
+    async def async_step_reauth(self, entry_data):
+        """Start reauthentication after Dinero rejects the credentials."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(self, user_input=None):
+        """Collect and validate the replacement Client Secret."""
+        return await self._async_update_client_secret("reauth_confirm", user_input)
+
+    async def _async_update_client_secret(self, step_id, user_input):
+        """Validate and save a replacement Client Secret."""
+        entry = (
+            self._get_reauth_entry()
+            if step_id == "reauth_confirm"
+            else self._get_reconfigure_entry()
+        )
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            client = DineroApiClient(
+                self.hass,
+                client_id=entry.data[CONF_CLIENT_ID],
+                client_secret=user_input[CONF_CLIENT_SECRET],
+                api_key=entry.data[CONF_API_KEY],
+                organization_id=entry.data[CONF_ORGANIZATION_ID],
+                inventory_account=int(
+                    entry.data.get(CONF_INVENTORY_ACCOUNT, DEFAULT_INVENTORY_ACCOUNT)
+                ),
+            )
+            try:
+                await client.async_validate()
+            except DineroAuthenticationError:
+                errors["base"] = "invalid_auth"
+            except DineroApiError:
+                errors["base"] = "cannot_connect"
+            else:
+                return self.async_update_and_abort(
+                    entry,
+                    data_updates={
+                        CONF_CLIENT_SECRET: str(user_input[CONF_CLIENT_SECRET])
+                    },
+                )
+
+        return self.async_show_form(
+            step_id=step_id,
+            data_schema=vol.Schema({vol.Required(CONF_CLIENT_SECRET): str}),
+            errors=errors,
+        )
+
 
 class DineroOptionsFlow(config_entries.OptionsFlow):
     """Configure inventory posting for an existing Dinero entry."""
